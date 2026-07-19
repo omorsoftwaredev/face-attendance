@@ -3,5 +3,5 @@ class SupabaseConfig {
       'https://bsynrvhpbbprxoyjopsn.supabase.co';
 
   static const String anonKey =
-      'তোমার Publishable Key এখানে';
+      'sb_publishable_eXlBZd3lWhLCcbI6E1wITA_myXSPEf8';
 }

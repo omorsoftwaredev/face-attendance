@@ -1,17 +1,19 @@
-# worktrack_pro
+# WorkTrack Pro
 
-A new Flutter project.
+Enterprise Attendance & Workforce Management System
 
-## Getting Started
+## Features
 
-This project is a starting point for a Flutter application.
+- Multi Company
+- Employee Management
+- GPS Attendance
+- Face Attendance
+- Leave Management
+- Reports
+- Dashboard
 
-A few resources to get you started if this is your first Flutter project:
+Built with:
 
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Flutter learning resources](https://docs.flutter.dev/reference/learning-resources)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+- Flutter
+- Supabase
+- PostgreSQL
