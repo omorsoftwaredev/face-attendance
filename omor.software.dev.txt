@@ -1,0 +1,3 @@
+supabase : 3eKurDjMbGQhOjix
+password : Admin@123456
+mail/username : omor.software.dev@gmail.com

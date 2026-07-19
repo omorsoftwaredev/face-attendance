@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'features/auth/login_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await dotenv.load(fileName: ".env");
+  // await Supabase.initialize(
+  //   url: dotenv.env['SUPABASE_URL']!,
+  //   anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+  // );
 
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    anonKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: 'https://bsynrvhpbbprxoyjopsn.supabase.co',
+    anonKey: 'sb_publishable_eXlBZd3lWhLCcbI6E1wITA_myXSPEf8',
   );
 
   runApp(const MyApp());
@@ -22,11 +26,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: Center(
-          child: Text("WorkTrack Pro"),
-        ),
-      ),
+      home: LoginPage(),
     );
   }
 }
