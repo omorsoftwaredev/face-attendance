@@ -15,6 +15,9 @@ class CompanyProvider extends ChangeNotifier {
   String? _error;
 
   List<CompanyModel> get companies => _companies;
+  List<CompanyModel> _filteredCompanies = [];
+
+  List<CompanyModel> get filteredCompanies => _filteredCompanies;
 
   bool get isLoading => _isLoading;
 
@@ -27,11 +30,31 @@ class CompanyProvider extends ChangeNotifier {
       _error = null;
 
       _companies = await _service.getCompanies();
+      _filteredCompanies = List.from(_companies);
     } catch (e) {
       _error = e.toString();
     } finally {
       _setLoading(false);
     }
+  }
+  void search(String keyword) {
+    if (keyword.trim().isEmpty) {
+      _filteredCompanies = List.from(_companies);
+    } else {
+      final query = keyword.toLowerCase();
+
+      _filteredCompanies = _companies.where((company) {
+        return company.companyName.toLowerCase().contains(query) ||
+            (company.companyEmail ?? '')
+                .toLowerCase()
+                .contains(query) ||
+            (company.phone ?? '')
+                .toLowerCase()
+                .contains(query);
+      }).toList();
+    }
+
+    notifyListeners();
   }
 
   /// Create Company
