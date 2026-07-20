@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import 'package:worktrack_pro/features/company/providers/company_provider.dart';
 import 'package:worktrack_pro/features/splash/splash_page.dart';
 
 Future<void> main() async {
-
   WidgetsFlutterBinding.ensureInitialized();
 
   await Supabase.initialize(
@@ -15,15 +17,34 @@ Future<void> main() async {
 }
 
 class MyApp extends StatelessWidget {
-
   const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: SplashPage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider<CompanyProvider>(
+          create: (_) => CompanyProvider(),
+        ),
+      ],
+      child: MaterialApp(
+        debugShowCheckedModeBanner: false,
+        title: 'WorkTrack Pro',
+        theme: ThemeData(
+          useMaterial3: true,
+          colorSchemeSeed: Colors.indigo,
+          scaffoldBackgroundColor: const Color(0xFFF7F8FA),
+          appBarTheme: const AppBarTheme(
+            centerTitle: false,
+            elevation: 0,
+          ),
+          cardTheme: const CardThemeData(
+            elevation: 1,
+            margin: EdgeInsets.zero,
+          ),
+        ),
+        home: const SplashPage(),
+      ),
     );
   }
 }
