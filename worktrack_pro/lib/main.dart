@@ -4,6 +4,8 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'package:worktrack_pro/features/company/providers/company_provider.dart';
 import 'package:worktrack_pro/features/splash/splash_page.dart';
+import 'package:worktrack_pro/features/department/providers/department_provider.dart';
+import 'package:worktrack_pro/features/designation/providers/designation_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -25,6 +27,13 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider<CompanyProvider>(
           create: (_) => CompanyProvider(),
+        ),
+
+        ChangeNotifierProvider<DepartmentProvider>(
+          create: (_) => DepartmentProvider(),
+        ),
+        ChangeNotifierProvider<DesignationProvider>(
+          create: (_) => DesignationProvider(),
         ),
       ],
       child: MaterialApp(
