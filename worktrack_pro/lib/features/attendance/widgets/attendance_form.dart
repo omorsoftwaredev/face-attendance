@@ -11,6 +11,7 @@ import 'attendance_form/attendance_actions.dart';
 import 'attendance_form/attendance_basic_info.dart';
 import 'attendance_form/attendance_notes_section.dart';
 import 'attendance_form/attendance_time_section.dart';
+import '../../company/providers/company_provider.dart';
 
 class AttendanceForm extends StatefulWidget {
   const AttendanceForm({
@@ -149,6 +150,23 @@ _isSaving = true;
 final provider =
 context.read<AttendanceProvider>();
 
+final companyProvider =
+context.read<CompanyProvider>();
+
+final company =
+    companyProvider.selectedCompany;
+
+if (company == null) {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(
+      content: Text(
+        'Please select a company.',
+      ),
+    ),
+  );
+  return;
+}
+
 final checkIn =
 AttendanceTimeUtils.combineDateAndTime(
 date: _attendanceDate,
@@ -172,7 +190,7 @@ const Uuid().v4(),
 
 // TODO:
 // Replace with CompanyProvider.selectedCompany.id
-companyId: 'YOUR_COMPANY_ID',
+  companyId: company.id,
 
 employeeId: _employeeId!,
 

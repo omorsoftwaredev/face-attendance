@@ -10,14 +10,19 @@ class CompanyProvider extends ChangeNotifier {
 
   List<CompanyModel> _companies = [];
 
+  List<CompanyModel> _filteredCompanies = [];
+
+  CompanyModel? _selectedCompany;
+
   bool _isLoading = false;
 
   String? _error;
 
   List<CompanyModel> get companies => _companies;
-  List<CompanyModel> _filteredCompanies = [];
 
   List<CompanyModel> get filteredCompanies => _filteredCompanies;
+
+  CompanyModel? get selectedCompany => _selectedCompany;
 
   bool get isLoading => _isLoading;
 
@@ -30,13 +35,29 @@ class CompanyProvider extends ChangeNotifier {
       _error = null;
 
       _companies = await _service.getCompanies();
+
       _filteredCompanies = List.from(_companies);
+
+      if (_selectedCompany == null &&
+          _companies.isNotEmpty) {
+        _selectedCompany = _companies.first;
+      }
     } catch (e) {
       _error = e.toString();
     } finally {
       _setLoading(false);
     }
   }
+
+  /// Select Company
+  void selectCompany(
+      CompanyModel company,
+      ) {
+    _selectedCompany = company;
+    notifyListeners();
+  }
+
+  /// Search Company
   void search(String keyword) {
     if (keyword.trim().isEmpty) {
       _filteredCompanies = List.from(_companies);
@@ -44,7 +65,9 @@ class CompanyProvider extends ChangeNotifier {
       final query = keyword.toLowerCase();
 
       _filteredCompanies = _companies.where((company) {
-        return company.companyName.toLowerCase().contains(query) ||
+        return company.companyName
+            .toLowerCase()
+            .contains(query) ||
             (company.companyEmail ?? '')
                 .toLowerCase()
                 .contains(query) ||
@@ -113,6 +136,13 @@ class CompanyProvider extends ChangeNotifier {
 
       await loadCompanies();
 
+      if (_selectedCompany?.id == id) {
+        _selectedCompany = _companies.firstWhere(
+              (company) => company.id == id,
+          orElse: () => _companies.first,
+        );
+      }
+
       return true;
     } catch (e) {
       _error = e.toString();
@@ -124,14 +154,28 @@ class CompanyProvider extends ChangeNotifier {
   }
 
   /// Delete Company
-  Future<bool> deleteCompany(String id) async {
+  Future<bool> deleteCompany(
+      String id,
+      ) async {
     try {
       _setLoading(true);
       _error = null;
 
       await _service.deleteCompany(id);
 
-      _companies.removeWhere((company) => company.id == id);
+      _companies.removeWhere(
+            (company) => company.id == id,
+      );
+
+      _filteredCompanies.removeWhere(
+            (company) => company.id == id,
+      );
+
+      if (_selectedCompany?.id == id) {
+        _selectedCompany = _companies.isNotEmpty
+            ? _companies.first
+            : null;
+      }
 
       notifyListeners();
 
@@ -151,7 +195,9 @@ class CompanyProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void _setLoading(bool value) {
+  void _setLoading(
+      bool value,
+      ) {
     _isLoading = value;
     notifyListeners();
   }
