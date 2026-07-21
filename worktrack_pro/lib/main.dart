@@ -7,6 +7,7 @@ import 'package:worktrack_pro/features/splash/splash_page.dart';
 import 'package:worktrack_pro/features/department/providers/department_provider.dart';
 import 'package:worktrack_pro/features/designation/providers/designation_provider.dart';
 import 'package:worktrack_pro/features/shift/providers/shift_provider.dart';
+import 'package:worktrack_pro/features/attendance/providers/attendance_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +39,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider<ShiftProvider>(
           create: (_) => ShiftProvider(),
+        ),
+        ChangeNotifierProvider<AttendanceProvider>(
+          create: (_) => AttendanceProvider(),
         ),
       ],
       child: MaterialApp(
