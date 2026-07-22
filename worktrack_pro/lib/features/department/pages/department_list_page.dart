@@ -18,25 +18,14 @@ class _DepartmentListPageState
   final TextEditingController _searchController =
   TextEditingController();
 
-
   @override
   void initState() {
     super.initState();
 
-    final company = context
-        .read<CompanyProvider>()
-        .selectedCompany;
-
-    if (company != null) {
-      context.read<DepartmentProvider>().loadDepartments(
-        companyId: company.id,
-      );
-    }
-
     _searchController.addListener(() {
-      context
-          .read<DepartmentProvider>()
-          .search(_searchController.text);
+      context.read<DepartmentProvider>().search(
+        _searchController.text,
+      );
     });
   }
 
@@ -47,21 +36,33 @@ class _DepartmentListPageState
   }
 
   Future<void> _refresh() async {
-    final company = context
-        .read<CompanyProvider>()
-        .selectedCompany;
+    final company =
+        context.read<CompanyProvider>().selectedCompany;
 
     if (company == null) return;
 
-    await context.read<DepartmentProvider>().refresh(
+    await context.read<DepartmentProvider>().loadDepartments(
       companyId: company.id,
     );
   }
 
   @override
   Widget build(BuildContext context) {
+    final company =
+        context.watch<CompanyProvider>().selectedCompany;
+
     final provider =
     context.watch<DepartmentProvider>();
+
+    if (company != null &&
+        !provider.isLoading &&
+        provider.departments.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        context.read<DepartmentProvider>().loadDepartments(
+          companyId: company.id,
+        );
+      });
+    }
 
     return Scaffold(
       appBar: AppBar(
@@ -81,7 +82,9 @@ class _DepartmentListPageState
             ),
           );
 
-          _refresh();
+          if (mounted) {
+            _refresh();
+          }
         },
         icon: const Icon(Icons.add),
         label: const Text(
@@ -187,7 +190,9 @@ class _DepartmentListPageState
                             ),
                           );
 
-                          _refresh();
+                          if (mounted) {
+                            _refresh();
+                          }
                         },
 
                         onDelete: () async {

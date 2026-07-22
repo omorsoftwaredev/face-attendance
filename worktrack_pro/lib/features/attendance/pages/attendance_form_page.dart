@@ -16,15 +16,18 @@ class AttendanceFormPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        centerTitle: true,
+        elevation: 0,
         title: Text(
-          isEdit
-              ? 'Edit Attendance'
-              : 'Add Attendance',
+          isEdit ? 'Edit Attendance' : 'Add Attendance',
         ),
       ),
+      resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: AttendanceForm(
-          attendanceId: attendanceId,
+        child: SizedBox.expand(
+          child: AttendanceForm(
+            attendanceId: attendanceId,
+          ),
         ),
       ),
     );

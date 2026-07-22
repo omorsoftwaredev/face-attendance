@@ -11,6 +11,7 @@ class DepartmentRepository {
 
   static const String _table = 'departments';
 
+  /// Get All Departments
   Future<List<DepartmentModel>> getDepartments({
     required String companyId,
   }) async {
@@ -18,51 +19,21 @@ class DepartmentRepository {
         .from(_table)
         .select()
         .eq('company_id', companyId)
-        .order('department_name');
+        .order(
+      'department_name',
+      ascending: true,
+    );
 
     return (response as List)
         .map(
-          (e) => DepartmentModel.fromJson(
-        e as Map<String, dynamic>,
+          (json) => DepartmentModel.fromJson(
+        json as Map<String, dynamic>,
       ),
     )
         .toList();
   }
 
-  Future<DepartmentModel> createDepartment({
-    required DepartmentModel department,
-  }) async {
-    final response = await _client
-        .from(_table)
-        .insert(department.toJson())
-        .select()
-        .single();
-
-    return DepartmentModel.fromJson(response);
-  }
-
-  Future<DepartmentModel> updateDepartment({
-    required DepartmentModel department,
-  }) async {
-    final response = await _client
-        .from(_table)
-        .update(department.toJson())
-        .eq('id', department.id)
-        .select()
-        .single();
-
-    return DepartmentModel.fromJson(response);
-  }
-
-  Future<void> deleteDepartment(
-      String id,
-      ) async {
-    await _client
-        .from(_table)
-        .delete()
-        .eq('id', id);
-  }
-
+  /// Get Department By ID
   Future<DepartmentModel?> getDepartmentById(
       String id,
       ) async {
@@ -79,6 +50,44 @@ class DepartmentRepository {
     return DepartmentModel.fromJson(response);
   }
 
+  /// Create Department
+  Future<DepartmentModel> createDepartment({
+    required DepartmentModel department,
+  }) async {
+    final response = await _client
+        .from(_table)
+        .insert(department.toJson())
+        .select()
+        .single();
+
+    return DepartmentModel.fromJson(response);
+  }
+
+  /// Update Department
+  Future<DepartmentModel> updateDepartment({
+    required DepartmentModel department,
+  }) async {
+    final response = await _client
+        .from(_table)
+        .update(department.toJson())
+        .eq('id', department.id)
+        .select()
+        .single();
+
+    return DepartmentModel.fromJson(response);
+  }
+
+  /// Delete Department
+  Future<void> deleteDepartment(
+      String id,
+      ) async {
+    await _client
+        .from(_table)
+        .delete()
+        .eq('id', id);
+  }
+
+  /// Check Duplicate Department Name
   Future<bool> departmentNameExists({
     required String companyId,
     required String departmentName,
@@ -94,7 +103,10 @@ class DepartmentRepository {
     );
 
     if (excludeId != null) {
-      query = query.neq('id', excludeId);
+      query = query.neq(
+        'id',
+        excludeId,
+      );
     }
 
     final response = await query;

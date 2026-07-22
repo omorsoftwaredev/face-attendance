@@ -189,6 +189,17 @@ class AttendanceProvider extends ChangeNotifier {
 
     notifyListeners();
   }
+  AttendanceModel? getAttendanceById(String id) {
+    try {
+      return _attendances.firstWhere(
+            (e) => e.id == id,
+      );
+    } catch (_) {
+      return null;
+    }
+  }
+
+  // ================= AttendanceProvider =================
 
   Future<void> refresh({
     required String companyId,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-
 import '../../../core/models/attendance_model.dart';
 
 class AttendanceCard extends StatelessWidget {
@@ -15,118 +14,55 @@ class AttendanceCard extends StatelessWidget {
   final VoidCallback onEdit;
   final VoidCallback onDelete;
 
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
+  Color _statusColor(BuildContext context){
+    switch(attendance.attendanceStatus.toLowerCase()){
+      case 'present': return Colors.green;
+      case 'late': return Colors.orange;
+      case 'absent': return Colors.red;
+      default: return Theme.of(context).colorScheme.primary;
+    }
+  }
 
+  @override
+  Widget build(BuildContext context){
+    final theme=Theme.of(context);
     return Card(
-      margin: const EdgeInsets.symmetric(
-        horizontal: 16,
-        vertical: 6,
-      ),
+      elevation: 1,
+      margin: const EdgeInsets.symmetric(horizontal:16,vertical:6),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor:
-          theme.colorScheme.primaryContainer,
+          backgroundColor: theme.colorScheme.primaryContainer,
           child: const Icon(Icons.fact_check),
         ),
-        title: Text(
-          DateFormat(
-            'dd MMM yyyy',
-          ).format(attendance.attendanceDate),
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-        subtitle: Column(
-          crossAxisAlignment:
-          CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 4),
-
-            Text(
-              'Status: ${attendance.attendanceStatus}',
+        title: Text(DateFormat('dd MMM yyyy').format(attendance.attendanceDate),style: const TextStyle(fontWeight: FontWeight.bold)),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top:6),
+          child: Column(crossAxisAlignment: CrossAxisAlignment.start,children:[
+            Chip(
+              visualDensity: VisualDensity.compact,
+              label: Text(attendance.attendanceStatus),
+              backgroundColor: _statusColor(context).withOpacity(.15),
             ),
-
-            const SizedBox(height: 4),
-
-            Text(
-              'In: ${_formatDateTime(attendance.checkInTime)}',
-            ),
-
-            Text(
-              'Out: ${_formatDateTime(attendance.checkOutTime)}',
-            ),
-
-            const SizedBox(height: 6),
-
-            Wrap(
-              spacing: 8,
-              children: [
-                Chip(
-                  label: Text(
-                    'Late ${attendance.lateMinutes}m',
-                  ),
-                ),
-                Chip(
-                  label: Text(
-                    'Work ${attendance.workedMinutes}m',
-                  ),
-                ),
-                Chip(
-                  label: Text(
-                    'OT ${attendance.overtimeMinutes}m',
-                  ),
-                ),
-              ],
-            ),
-          ],
+            Text('Check In : ${_fmt(attendance.checkInTime)}'),
+            Text('Check Out : ${_fmt(attendance.checkOutTime)}'),
+            const SizedBox(height:6),
+            Wrap(spacing:6,runSpacing:6,children:[
+              Chip(label: Text('Work ${attendance.workedMinutes}m')),
+              Chip(label: Text('Late ${attendance.lateMinutes}m')),
+              Chip(label: Text('OT ${attendance.overtimeMinutes}m')),
+            ])
+          ]),
         ),
         trailing: PopupMenuButton<String>(
-          onSelected: (value) {
-            switch (value) {
-              case 'edit':
-                onEdit();
-                break;
-              case 'delete':
-                onDelete();
-                break;
-            }
-          },
-          itemBuilder: (_) => const [
-            PopupMenuItem(
-              value: 'edit',
-              child: Row(
-                children: [
-                  Icon(Icons.edit_outlined),
-                  SizedBox(width: 8),
-                  Text('Edit'),
-                ],
-              ),
-            ),
-            PopupMenuItem(
-              value: 'delete',
-              child: Row(
-                children: [
-                  Icon(Icons.delete_outline),
-                  SizedBox(width: 8),
-                  Text('Delete'),
-                ],
-              ),
-            ),
+          onSelected:(v){if(v=='edit'){onEdit();}else{onDelete();}},
+          itemBuilder:(_)=>const[
+            PopupMenuItem(value:'edit',child:Text('Edit')),
+            PopupMenuItem(value:'delete',child:Text('Delete')),
           ],
         ),
       ),
     );
   }
 
-  String _formatDateTime(DateTime? value) {
-    if (value == null) {
-      return '-';
-    }
-
-    return DateFormat(
-      'hh:mm a',
-    ).format(value);
-  }
+  String _fmt(DateTime? d)=>d==null?'-':DateFormat('hh:mm a').format(d);
 }
