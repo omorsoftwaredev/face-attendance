@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/attendance_provider.dart';
 import '../widgets/attendance_card.dart';
 import 'attendance_form_page.dart';
+import '../../company/providers/company_provider.dart';
 
 class AttendanceListPage extends StatefulWidget {
   const AttendanceListPage({super.key});
@@ -20,17 +21,20 @@ class _AttendanceListPageState
 
   /// TODO:
   /// Replace with CompanyProvider.selectedCompany.id
-  final String companyId = 'YOUR_COMPANY_ID';
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company != null) {
       context.read<AttendanceProvider>().loadAttendances(
-        companyId: companyId,
+        companyId: company.id,
       );
-    });
+    }
 
     _searchController.addListener(() {
       context.read<AttendanceProvider>().search(
@@ -46,8 +50,14 @@ class _AttendanceListPageState
   }
 
   Future<void> _refresh() async {
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) return;
+
     await context.read<AttendanceProvider>().refresh(
-      companyId: companyId,
+      companyId: company.id,
     );
   }
 

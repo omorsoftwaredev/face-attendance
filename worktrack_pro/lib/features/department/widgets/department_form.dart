@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
 
+import '../../company/providers/company_provider.dart';
 import '../models/department_model.dart';
 import '../providers/department_provider.dart';
 
@@ -46,12 +47,33 @@ class _DepartmentFormState extends State<DepartmentForm> {
 
     final provider = context.read<DepartmentProvider>();
 
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) {
+      setState(() {
+        _isSaving = false;
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please select a company.',
+          ),
+        ),
+      );
+
+      return;
+    }
+
     final now = DateTime.now();
 
     final department = DepartmentModel(
       id: widget.departmentId ?? const Uuid().v4(),
-      companyId:
-      'YOUR_COMPANY_ID', // Sprint-10 এ CompanyProvider থেকে আসবে
+      companyId: company.id,
       departmentName: _nameController.text.trim(),
       description: _descriptionController.text.trim().isEmpty
           ? null
@@ -119,8 +141,7 @@ class _DepartmentFormState extends State<DepartmentForm> {
                 border: OutlineInputBorder(),
               ),
               validator: (value) {
-                if (value == null ||
-                    value.trim().isEmpty) {
+                if (value == null || value.trim().isEmpty) {
                   return 'Department name is required.';
                 }
 
@@ -170,14 +191,12 @@ class _DepartmentFormState extends State<DepartmentForm> {
               width: double.infinity,
               height: 52,
               child: FilledButton.icon(
-                onPressed:
-                _isSaving ? null : _save,
+                onPressed: _isSaving ? null : _save,
                 icon: _isSaving
                     ? const SizedBox(
-                  height: 20,
                   width: 20,
-                  child:
-                  CircularProgressIndicator(
+                  height: 20,
+                  child: CircularProgressIndicator(
                     strokeWidth: 2,
                   ),
                 )

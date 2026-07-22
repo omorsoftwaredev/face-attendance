@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../company/providers/company_provider.dart';
 import '../providers/shift_provider.dart';
 import '../widgets/shift_card.dart';
 import 'shift_form_page.dart';
@@ -16,18 +17,20 @@ class _ShiftListPageState extends State<ShiftListPage> {
   final TextEditingController _searchController =
   TextEditingController();
 
-  /// TODO:
-  /// Replace with CompanyProvider.selectedCompany.id
-  final String companyId = 'YOUR_COMPANY_ID';
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<ShiftProvider>().loadShifts(
-        companyId: companyId,
-      );
+      final company = context
+          .read<CompanyProvider>()
+          .selectedCompany;
+
+      if (company != null) {
+        context.read<ShiftProvider>().loadShifts(
+          companyId: company.id,
+        );
+      }
     });
 
     _searchController.addListener(() {
@@ -44,8 +47,14 @@ class _ShiftListPageState extends State<ShiftListPage> {
   }
 
   Future<void> _refresh() async {
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) return;
+
     await context.read<ShiftProvider>().refresh(
-      companyId: companyId,
+      companyId: company.id,
     );
   }
 
@@ -134,15 +143,13 @@ class _ShiftListPageState extends State<ShiftListPage> {
 
                       return ShiftCard(
                         shift: shift,
-
                         onEdit: () async {
                           await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) =>
                                   ShiftFormPage(
-                                    shiftId:
-                                    shift.id,
+                                    shiftId: shift.id,
                                   ),
                             ),
                           );
@@ -151,7 +158,6 @@ class _ShiftListPageState extends State<ShiftListPage> {
                             _refresh();
                           }
                         },
-
                         onDelete: () async {
                           final confirm =
                           await showDialog<bool>(

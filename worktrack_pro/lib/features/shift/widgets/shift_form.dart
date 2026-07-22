@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/shift_model.dart';
 import '../providers/shift_provider.dart';
-
+import '../../company/providers/company_provider.dart';
 class ShiftForm extends StatefulWidget {
   const ShiftForm({
     super.key,
@@ -60,6 +60,27 @@ class _ShiftFormState extends State<ShiftForm> {
     });
 
     final provider = context.read<ShiftProvider>();
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) {
+      setState(() {
+        _isSaving = false;
+      });
+
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please select a company.',
+          ),
+        ),
+      );
+
+      return;
+    }
 
     final now = DateTime.now();
 
@@ -68,7 +89,7 @@ class _ShiftFormState extends State<ShiftForm> {
 
       // TODO:
       // Replace with CompanyProvider.selectedCompany.id
-      companyId: 'YOUR_COMPANY_ID',
+      companyId: company.id,
 
       shiftName: _shiftNameController.text.trim(),
 

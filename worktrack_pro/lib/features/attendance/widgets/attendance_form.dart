@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:uuid/uuid.dart';
-
+import '../../company/providers/company_provider.dart';
 import '../../../core/models/attendance_model.dart';
 import '../../employee/providers/employee_provider.dart';
 import '../../shift/providers/shift_provider.dart';
@@ -11,7 +11,6 @@ import 'attendance_form/attendance_actions.dart';
 import 'attendance_form/attendance_basic_info.dart';
 import 'attendance_form/attendance_notes_section.dart';
 import 'attendance_form/attendance_time_section.dart';
-import '../../company/providers/company_provider.dart';
 
 class AttendanceForm extends StatefulWidget {
   const AttendanceForm({

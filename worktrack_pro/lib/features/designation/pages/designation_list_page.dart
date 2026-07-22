@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../company/providers/company_provider.dart';
 import '../providers/designation_provider.dart';
 import '../widgets/designation_card.dart';
 import 'designation_form_page.dart';
@@ -18,18 +19,22 @@ class _DesignationListPageState
   final TextEditingController _searchController =
   TextEditingController();
 
-  /// TODO:
-  /// Replace with CompanyProvider.selectedCompany.id
-  final String companyId = 'YOUR_COMPANY_ID';
-
   @override
   void initState() {
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<DesignationProvider>().loadDesignations(
-        companyId: companyId,
-      );
+      final company = context
+          .read<CompanyProvider>()
+          .selectedCompany;
+
+      if (company != null) {
+        context
+            .read<DesignationProvider>()
+            .loadDesignations(
+          companyId: company.id,
+        );
+      }
     });
 
     _searchController.addListener(() {
@@ -46,8 +51,16 @@ class _DesignationListPageState
   }
 
   Future<void> _refresh() async {
-    await context.read<DesignationProvider>().refresh(
-      companyId: companyId,
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) return;
+
+    await context
+        .read<DesignationProvider>()
+        .refresh(
+      companyId: company.id,
     );
   }
 
@@ -62,7 +75,6 @@ class _DesignationListPageState
           'Designations',
         ),
       ),
-
       floatingActionButton:
       FloatingActionButton.extended(
         onPressed: () async {
@@ -75,7 +87,7 @@ class _DesignationListPageState
           );
 
           if (mounted) {
-            _refresh();
+            await _refresh();
           }
         },
         icon: const Icon(Icons.add),
@@ -83,23 +95,22 @@ class _DesignationListPageState
           'Designation',
         ),
       ),
-
       body: Column(
         children: [
-
           Padding(
             padding: const EdgeInsets.all(16),
             child: SearchBar(
               controller: _searchController,
-              hintText: 'Search designation...',
-              leading: const Icon(Icons.search),
+              hintText:
+              'Search designation...',
+              leading: const Icon(
+                Icons.search,
+              ),
             ),
           ),
-
           Expanded(
             child: Builder(
               builder: (_) {
-
                 if (provider.isLoading) {
                   return const Center(
                     child:
@@ -123,16 +134,12 @@ class _DesignationListPageState
                     onRefresh: _refresh,
                     child: ListView(
                       children: const [
-
                         SizedBox(height: 180),
-
                         Icon(
                           Icons.badge_outlined,
                           size: 80,
                         ),
-
                         SizedBox(height: 20),
-
                         Center(
                           child: Text(
                             'No Designation Found',
@@ -153,15 +160,13 @@ class _DesignationListPageState
                     itemCount: provider
                         .filteredDesignations
                         .length,
-                    itemBuilder: (_, index) {
-
+                    itemBuilder:
+                        (_, index) {
                       final designation =
-                      provider
-                          .filteredDesignations[index];
+                      provider.filteredDesignations[index];
 
                       return DesignationCard(
                         designation: designation,
-
                         onEdit: () async {
                           await Navigator.push(
                             context,
@@ -171,18 +176,17 @@ class _DesignationListPageState
                                     designationId:
                                     designation.id,
                                     departmentId:
-                                    designation.departmentId,
+                                    designation
+                                        .departmentId,
                                   ),
                             ),
                           );
 
                           if (mounted) {
-                            _refresh();
+                            await _refresh();
                           }
                         },
-
                         onDelete: () async {
-
                           final confirm =
                           await showDialog<bool>(
                             context: context,
@@ -195,7 +199,6 @@ class _DesignationListPageState
                                     'Delete "${designation.designationName}" ?',
                                   ),
                                   actions: [
-
                                     TextButton(
                                       onPressed: () {
                                         Navigator.pop(
@@ -207,7 +210,6 @@ class _DesignationListPageState
                                         'Cancel',
                                       ),
                                     ),
-
                                     FilledButton(
                                       onPressed: () {
                                         Navigator.pop(
@@ -224,14 +226,15 @@ class _DesignationListPageState
                           );
 
                           if (confirm == true) {
-
                             final success =
                             await provider
                                 .deleteDesignation(
                               designation.id,
                             );
 
-                            if (!mounted) return;
+                            if (!mounted) {
+                              return;
+                            }
 
                             ScaffoldMessenger.of(
                                 context)

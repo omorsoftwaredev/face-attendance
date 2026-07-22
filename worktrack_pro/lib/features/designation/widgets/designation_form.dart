@@ -4,7 +4,7 @@ import 'package:uuid/uuid.dart';
 
 import '../models/designation_model.dart';
 import '../providers/designation_provider.dart';
-
+import '../../company/providers/company_provider.dart';
 class DesignationForm extends StatefulWidget {
   const DesignationForm({
     super.key,
@@ -54,7 +54,27 @@ class _DesignationFormState
 
     final provider =
     context.read<DesignationProvider>();
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
 
+    if (company == null) {
+      if (!mounted) return;
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Please select a company.',
+          ),
+        ),
+      );
+
+      setState(() {
+        _isSaving = false;
+      });
+
+      return;
+    }
     final now = DateTime.now();
 
     final designation = DesignationModel(
@@ -63,7 +83,7 @@ class _DesignationFormState
 
       /// TODO:
       /// Replace with CompanyProvider.selectedCompany.id
-      companyId: 'YOUR_COMPANY_ID',
+      companyId: company.id,
 
       departmentId: widget.departmentId,
 

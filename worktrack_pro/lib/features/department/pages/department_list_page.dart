@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/department_provider.dart';
 import '../widgets/department_card.dart';
 import 'department_form_page.dart';
-
+import '../../company/providers/company_provider.dart';
 class DepartmentListPage extends StatefulWidget {
   const DepartmentListPage({super.key});
 
@@ -18,19 +18,20 @@ class _DepartmentListPageState
   final TextEditingController _searchController =
   TextEditingController();
 
-  /// TODO:
-  /// Replace with current CompanyProvider selected company id
-  final String companyId = 'YOUR_COMPANY_ID';
 
   @override
   void initState() {
     super.initState();
 
-    WidgetsBinding.instance.addPostFrameCallback((_) {
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company != null) {
       context.read<DepartmentProvider>().loadDepartments(
-        companyId: companyId,
+        companyId: company.id,
       );
-    });
+    }
 
     _searchController.addListener(() {
       context
@@ -46,8 +47,14 @@ class _DepartmentListPageState
   }
 
   Future<void> _refresh() async {
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) return;
+
     await context.read<DepartmentProvider>().refresh(
-      companyId: companyId,
+      companyId: company.id,
     );
   }
 
