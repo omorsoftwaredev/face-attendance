@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../company/providers/company_provider.dart';
 import '../providers/employee_provider.dart';
 import '../widgets/employee_card.dart';
 import 'employee_form_page.dart';
@@ -23,13 +24,23 @@ class _EmployeeListPageState
     super.initState();
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<EmployeeProvider>().loadEmployees();
+      final company = context
+          .read<CompanyProvider>()
+          .selectedCompany;
+
+      if (company != null) {
+        context.read<EmployeeProvider>().loadEmployees(
+          companyId: company.id,
+        );
+      }
     });
 
     _searchController.addListener(() {
       context
           .read<EmployeeProvider>()
           .search(_searchController.text);
+
+      setState(() {});
     });
   }
 
@@ -40,9 +51,17 @@ class _EmployeeListPageState
   }
 
   Future<void> _refresh() async {
-    await context
-        .read<EmployeeProvider>()
-        .loadEmployees();
+    final company = context
+        .read<CompanyProvider>()
+        .selectedCompany;
+
+    if (company == null) {
+      return;
+    }
+
+    await context.read<EmployeeProvider>().loadEmployees(
+      companyId: company.id,
+    );
   }
 
   @override
@@ -54,7 +73,6 @@ class _EmployeeListPageState
       appBar: AppBar(
         title: const Text('Employees'),
       ),
-
       floatingActionButton:
       FloatingActionButton.extended(
         onPressed: () {
@@ -69,10 +87,8 @@ class _EmployeeListPageState
         icon: const Icon(Icons.add),
         label: const Text('Employee'),
       ),
-
       body: Column(
         children: [
-
           Padding(
             padding: const EdgeInsets.fromLTRB(
               16,
@@ -85,7 +101,6 @@ class _EmployeeListPageState
               hintText: 'Search employee...',
               leading:
               const Icon(Icons.search),
-
               trailing:
               _searchController.text.isEmpty
                   ? null
@@ -102,7 +117,6 @@ class _EmployeeListPageState
               ],
             ),
           ),
-
           Expanded(
             child: Builder(
               builder: (_) {
@@ -118,7 +132,8 @@ class _EmployeeListPageState
                   return Center(
                     child: Padding(
                       padding:
-                      const EdgeInsets.all(24),
+                      const EdgeInsets.all(
+                          24),
                       child: Column(
                         mainAxisAlignment:
                         MainAxisAlignment
@@ -128,19 +143,15 @@ class _EmployeeListPageState
                             Icons.error_outline,
                             size: 70,
                           ),
-
                           const SizedBox(
                               height: 16),
-
                           Text(
                             provider.error!,
                             textAlign:
                             TextAlign.center,
                           ),
-
                           const SizedBox(
                               height: 20),
-
                           FilledButton.icon(
                             onPressed: _refresh,
                             icon: const Icon(
@@ -185,24 +196,20 @@ class _EmployeeListPageState
 
                 return RefreshIndicator(
                   onRefresh: _refresh,
-                  child:
-                  ListView.separated(
+                  child: ListView.separated(
                     padding:
                     const EdgeInsets.only(
                       top: 8,
                       bottom: 90,
                     ),
-
                     itemCount: provider
                         .filteredEmployees
                         .length,
-
                     separatorBuilder:
                         (_, __) =>
                     const SizedBox(
                       height: 4,
                     ),
-
                     itemBuilder:
                         (_, index) {
                       final employee =
@@ -212,7 +219,6 @@ class _EmployeeListPageState
 
                       return EmployeeCard(
                         employee: employee,
-
                         onEdit: () {
                           Navigator.push(
                             context,
@@ -227,7 +233,6 @@ class _EmployeeListPageState
                                 (_) => _refresh(),
                           );
                         },
-
                         onDelete: () async {
                           final confirm =
                           await showDialog<
@@ -238,14 +243,12 @@ class _EmployeeListPageState
                                   title: const Text(
                                     'Delete Employee',
                                   ),
-                                  content:
-                                  Text(
+                                  content: Text(
                                     'Delete ${employee.fullName}?',
                                   ),
                                   actions: [
                                     TextButton(
-                                      onPressed:
-                                          () {
+                                      onPressed: () {
                                         Navigator.pop(
                                           context,
                                           false,
@@ -257,8 +260,7 @@ class _EmployeeListPageState
                                       ),
                                     ),
                                     FilledButton(
-                                      onPressed:
-                                          () {
+                                      onPressed: () {
                                         Navigator.pop(
                                           context,
                                           true,
@@ -280,19 +282,21 @@ class _EmployeeListPageState
                               employee.id,
                             );
 
-                            if (context
-                                .mounted) {
-                              ScaffoldMessenger
-                                  .of(
-                                  context)
-                                  .showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    'Employee deleted successfully.',
-                                  ),
-                                ),
-                              );
+                            if (!mounted) {
+                              return;
                             }
+
+                            ScaffoldMessenger.of(
+                                context)
+                                .showSnackBar(
+                              const SnackBar(
+                                content: Text(
+                                  'Employee deleted successfully.',
+                                ),
+                              ),
+                            );
+
+                            _refresh();
                           }
                         },
                       );

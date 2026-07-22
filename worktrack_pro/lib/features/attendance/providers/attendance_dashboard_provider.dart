@@ -18,8 +18,38 @@ class AttendanceDashboardProvider extends ChangeNotifier {
   int lateEmployees = 0;
   int totalWorkedMinutes = 0;
   int totalOvertimeMinutes = 0;
+
   double attendanceRate = 0;
 
+  bool _isLoading = false;
+  String? _error;
+
+  bool get isLoading => _isLoading;
+  String? get error => _error;
+
+  /// Refresh Dashboard
+  Future<void> refreshDashboard({
+    required int employeeCount,
+    required List<AttendanceModel> attendances,
+  }) async {
+    try {
+      _isLoading = true;
+      _error = null;
+      notifyListeners();
+
+      calculate(
+        employeeCount: employeeCount,
+        attendances: attendances,
+      );
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  /// Calculate Dashboard Statistics
   void calculate({
     required int employeeCount,
     required List<AttendanceModel> attendances,
@@ -41,11 +71,10 @@ class AttendanceDashboardProvider extends ChangeNotifier {
       attendances: attendances,
     );
 
-    attendanceRate =
-        _statisticsService.attendanceRate(
-          totalEmployees: totalEmployees,
-          presentEmployees: presentEmployees,
-        );
+    attendanceRate = _statisticsService.attendanceRate(
+      totalEmployees: totalEmployees,
+      presentEmployees: presentEmployees,
+    );
 
     totalWorkedMinutes =
         _statisticsService.totalWorkedMinutes(
@@ -56,6 +85,20 @@ class AttendanceDashboardProvider extends ChangeNotifier {
         _statisticsService.totalOvertimeMinutes(
           attendances: attendances,
         );
+
+    notifyListeners();
+  }
+
+  /// Reset Dashboard
+  void clear() {
+    totalEmployees = 0;
+    presentEmployees = 0;
+    absentEmployees = 0;
+    lateEmployees = 0;
+    totalWorkedMinutes = 0;
+    totalOvertimeMinutes = 0;
+    attendanceRate = 0;
+    _error = null;
 
     notifyListeners();
   }

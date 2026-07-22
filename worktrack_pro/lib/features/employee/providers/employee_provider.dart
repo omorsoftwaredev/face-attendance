@@ -24,12 +24,17 @@ class EmployeeProvider extends ChangeNotifier {
   String? get error => _error;
 
   /// Load Employees
-  Future<void> loadEmployees() async {
+  Future<void> loadEmployees({
+    required String companyId,
+  }) async {
     try {
       _setLoading(true);
       _error = null;
 
-      _employees = await _service.getEmployees();
+      _employees = await _service.getEmployees(
+        companyId: companyId,
+      );
+
       _filteredEmployees = List.from(_employees);
     } catch (e) {
       _error = e.toString();
@@ -90,7 +95,9 @@ class EmployeeProvider extends ChangeNotifier {
         profilePhoto: profilePhoto,
       );
 
-      await loadEmployees();
+      await loadEmployees(
+        companyId: companyId,
+      );
 
       return true;
     } catch (e) {
@@ -132,7 +139,9 @@ class EmployeeProvider extends ChangeNotifier {
         isActive: isActive,
       );
 
-      await loadEmployees();
+      await loadEmployees(
+        companyId: companyId,
+      );
 
       return true;
     } catch (e) {

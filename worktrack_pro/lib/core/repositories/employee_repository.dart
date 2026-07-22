@@ -11,11 +11,14 @@ class EmployeeRepository {
 
   static const String _table = 'company_employees';
 
-  /// Get All Employees
-  Future<List<EmployeeModel>> getEmployees() async {
+  /// Get All Employees (Company Wise)
+  Future<List<EmployeeModel>> getEmployees({
+    required String companyId,
+  }) async {
     final response = await _client
         .from(_table)
         .select()
+        .eq('company_id', companyId)
         .order('created_at', ascending: false);
 
     return (response as List)

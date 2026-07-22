@@ -9,9 +9,13 @@ class EmployeeService {
   final EmployeeRepository _repository;
 
   /// Get All Employees
-  Future<List<EmployeeModel>> getEmployees() async {
+  Future<List<EmployeeModel>> getEmployees({
+    required String companyId,
+  }) async {
     try {
-      return await _repository.getEmployees();
+      return await _repository.getEmployees(
+        companyId: companyId,
+      );
     } catch (e) {
       throw Exception(
         'Failed to load employees.\n$e',
